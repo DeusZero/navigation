@@ -1,0 +1,58 @@
+# pseudocode for algorithm of Systematic Cooperation with Future Time Windows
+
+Set the duration of simulation to T_s
+Set the size of future time windows to t_w
+Load the route set P_all
+Initialize x ̂_l^h (1)=0,(l∈[1,L],h∈N^+)
+For t = 1, T_s do
+  Obtain all vehicles V enter the network at time t
+  For all veh in V do
+    Take P_i from P_all according to the OD of veh
+    travel_time = []
+    time_windows = []
+    For all route in P_i do
+      Calculate the travel time t_r of the route and the time h_r that veh enters links
+      travel_time.add(t_r)
+      time_windows.add(round(h_r/t_w))
+    End For
+    Calculate probability P according to travel_time
+    If veh does not obey our navigation then
+      With probability P select a random route r_act as the actual route of veh
+      With probability P select a random route r_sys as the calculating route for veh
+    Else
+      Select the route r_sys whose travel time is the lowest for veh
+    End If
+    Update x ̂_l^h according to r_sys and its time windows corresponding to r_sys selected from time_windows 
+  End For
+  h_c=round(t/t_w)
+  For all links e_l in E do
+    Obtain the actual number of vehicles x_l^t at time t on the link e_l
+    Calculate the δ=x_l^t-x ̂_l^t
+    time_windows = []
+    If δ==0 then 
+      Continue
+    Else
+      For i=1, abs(δ) do
+        If δ>0 then
+          Calculate the travel time t_l according to temp_x=x ̂_l^t+i-1
+        Else
+          Calculate the travel time t_l according to temp_x=i-1
+        End If
+        time_windows.add(round((t_l+t)/t_w))
+      End For
+      For h_l in time_windows do
+        For h=h_c,h_l do 
+          x ̂_l^h=x ̂_l^h+δ/abs(δ)
+        End For
+      End For
+    End If
+  End For
+End For
+
+/*
+In this algorithm, when we adjust our estimation, we calculate different temp_x according to δ, 
+because we consider that if δ>0, which means there are more vehicles enter that link, 
+we should factor those vehicles into our estimation, and if δ<0, 
+which means some vehicles leave that link early and those must be the vehicles which enter the link early, 
+that is why we calculate it from zero.
+*/
