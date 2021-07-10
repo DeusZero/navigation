@@ -1,0 +1,46 @@
+# pseudocode for Algorithm of DFS with a Break Condition
+
+Load the set of OD pairs whose size is N
+Load the mapping table (map) of all nodes to their neighbors 
+({node1: [node2, node3], node2: [node1, node4], …})
+Initialize P_all = []
+For i = 1, N do
+  start, end = OD[i]
+  d_min = Dijkstra(start, end)
+  Initialize P_i = [], main_stack = [start], check_stack = [map[start]]
+  Set γ = γ_i
+  While main_stack is not empty do
+    driving_distance = calculate_distance(main_stack)
+    If driving_distance >= γ_i d_min then
+      main_stack.pop()
+      If check_stack is not empty then
+        check_stack.pop()
+      End If
+      Continue
+    End If
+    check_top = check_stack.pop()
+    If check_top is not empty then
+      main_top = check_top[0]
+      main_stack.add(main_top), check_stack.add(check_top[1:])
+      If map[main_top] is not empty then
+        check_top = []
+        For node in map[main_top] do
+          If node not in main_stack then 
+            check_top.add(node)
+          End If
+        End For
+        check_stack.add(check_top)
+      End If
+    Else
+      main_stack.pop()
+    End If
+    If main_stack is not empty and main_stack[-1] == end then
+      P_i.add(main_stack)
+      main_stack.pop()
+      If check_stack is not empty then
+        check_stack.pop()
+      End If
+    End If
+  End While
+  P_all.add(P_i)
+End For 
